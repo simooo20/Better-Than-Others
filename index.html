@@ -63,9 +63,13 @@ img,video{display:block;max-width:100%}
 /* hero */
 .hero{position:relative;height:880px;overflow:hidden;background:#000}
 .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.1s ease}
-.ph-night{opacity:0}
-.night .ph-night{opacity:1}
-.night .ph-day{opacity:0}
+.ph-night{opacity:0;transition:opacity 1.2s ease .55s}
+.night .ph-night{opacity:1;animation:charge 2.4s ease-out .55s both}
+.night .ph-day{opacity:0;transition:none;animation:flickOff .75s linear both}
+.relight .ph-day{animation:flickOn .7s linear both}
+.relight .ph-night{transition-delay:0s}
+@keyframes flickOff{0%{opacity:1}12%{opacity:.15}22%{opacity:.9}34%{opacity:.05}46%{opacity:.6}60%,100%{opacity:0}}
+@keyframes flickOn{0%{opacity:0}15%{opacity:.7}25%{opacity:.1}40%{opacity:1}52%{opacity:.3}65%,100%{opacity:1}}
 .scrim{position:absolute;left:0;right:0;bottom:0;height:55%;background:linear-gradient(to top,rgba(0,0,0,.55),rgba(0,0,0,0));pointer-events:none}
 .hero-copy,.split-copy{position:absolute;left:28px;bottom:32px;z-index:3;display:flex;flex-direction:column;gap:16px;color:#FFFFFF;max-width:640px}
 .kicker{margin:0;font-size:12px;font-weight:500;letter-spacing:.04em}
@@ -506,7 +510,11 @@ var CONFIG = {
     var l = document.querySelector('[data-light-label]'); if (l) l.textContent = on ? 'Lights off' : 'Lights on';
     var h = document.querySelector('[data-hero-label]'); if (h) h.textContent = on ? 'Lights back on' : 'Kill the lights';
     document.querySelector('meta[name="theme-color"]').setAttribute('content', on ? '#050505' : '#FFFFFF');
-    if (hv) { if (on) hv.pause(); else { var p2 = hv.play(); if (p2 && p2.catch) p2.catch(function () {}); } }
+    var hero = document.querySelector('.hero');
+    if (hv) {
+      if (on) { setTimeout(function () { if (root.classList.contains('night')) hv.pause(); }, 800); }
+      else { var p2 = hv.play(); if (p2 && p2.catch) p2.catch(function () {}); hero.classList.add('relight'); setTimeout(function () { hero.classList.remove('relight'); }, 800); }
+    }
   }
   toggles.forEach(function (b) { b.addEventListener('click', function () { var on = !root.classList.contains('night'); setNight(on); track('light_toggle', { mode: on ? 'buio' : 'luce' }, 'LightToggle', { night: on }, true); }); });
 
