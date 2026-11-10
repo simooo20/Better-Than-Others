@@ -242,8 +242,8 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 
 <main>
 <section class="hero">
-<video class="ph ph-day" id="heroVid" poster="assets/hero-d-poster.jpg" data-d="assets/hero-d.mp4" data-m="assets/hero-m.mp4" data-pd="assets/hero-d-poster.jpg" data-pm="assets/hero-m-poster.jpg" autoplay muted loop playsinline preload="auto" aria-label="Models dancing under projections of the Techno Girls Are Better Than Others slogan"></video>
-<img class="ph ph-night" src="assets/hero-night.webp" alt="In the dark: the Techno Girls Are Better Than Others print glows aqua green" style="object-position:50% 45%">
+<video class="ph ph-day" id="heroVid" poster="assets/day-d-poster.jpg" data-d="assets/day-d.mp4" data-m="assets/day-m.mp4" data-pd="assets/day-d-poster.jpg" data-pm="assets/day-m-poster.jpg" autoplay muted loop playsinline preload="auto" aria-label="Girl in the Techno Girls Are Better Than Others top on a metro platform by day, white print"></video>
+<video class="ph ph-night" id="nightVid" poster="assets/night-d-poster.jpg" data-d="assets/night-d.mp4" data-m="assets/night-m.mp4" data-pd="assets/night-d-poster.jpg" data-pm="assets/night-m-poster.jpg" muted loop playsinline preload="none" aria-label="In the dark: the Techno Girls Are Better Than Others slogan glows on her"></video>
 <div class="scrim"></div>
 <div class="hero-copy">
 <p class="kicker">New drop</p>
@@ -495,12 +495,17 @@ var CONFIG = {
 
   /* ---- Video apertura: versione desktop o mobile ---- */
   var hv = document.getElementById('heroVid');
+  var nv = document.getElementById('nightVid');
+  var mob = window.matchMedia('(max-width: 760px)').matches;
+  function safePlay(v) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); }
   if (hv) {
-    var mob = window.matchMedia('(max-width: 760px)').matches;
     hv.poster = mob ? hv.dataset.pm : hv.dataset.pd;
     hv.src = mob ? hv.dataset.m : hv.dataset.d;
-    var pr = hv.play(); if (pr && pr.catch) pr.catch(function () {});
+    safePlay(hv);
   }
+  if (nv) nv.poster = mob ? nv.dataset.pm : nv.dataset.pd;
+  /* il video notte si scarica solo dopo che la pagina e' pronta, per non rallentare l'apertura */
+  window.addEventListener('load', function () { if (nv && !nv.src) { setTimeout(function () { nv.preload = 'auto'; nv.src = mob ? nv.dataset.m : nv.dataset.d; }, 1500); } });
 
   /* ---- Luce on/off ---- */
   var toggles = document.querySelectorAll('[data-toggle]');
@@ -512,8 +517,13 @@ var CONFIG = {
     document.querySelector('meta[name="theme-color"]').setAttribute('content', on ? '#050505' : '#FFFFFF');
     var hero = document.querySelector('.hero');
     if (hv) {
-      if (on) { setTimeout(function () { if (root.classList.contains('night')) hv.pause(); }, 800); }
-      else { var p2 = hv.play(); if (p2 && p2.catch) p2.catch(function () {}); hero.classList.add('relight'); setTimeout(function () { hero.classList.remove('relight'); }, 800); }
+      if (on) {
+        if (nv) { if (!nv.src) nv.src = mob ? nv.dataset.m : nv.dataset.d; nv.currentTime = 0; safePlay(nv); }
+        setTimeout(function () { if (root.classList.contains('night')) hv.pause(); }, 800);
+      } else {
+        safePlay(hv); hero.classList.add('relight');
+        setTimeout(function () { hero.classList.remove('relight'); if (nv && !root.classList.contains('night')) nv.pause(); }, 800);
+      }
     }
   }
   toggles.forEach(function (b) { b.addEventListener('click', function () { var on = !root.classList.contains('night'); setNight(on); track('light_toggle', { mode: on ? 'buio' : 'luce' }, 'LightToggle', { night: on }, true); }); });
