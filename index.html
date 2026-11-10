@@ -162,7 +162,6 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 .mcta{display:flex}
 .hdr{padding:8px 8px 0;margin-bottom:-92px}
 .hero{height:740px}
-.hero .ph-day{object-position:50% 42% !important}
 .hero-copy,.split-copy{left:16px;right:16px;bottom:32px;max-width:none;align-items:center;text-align:center}
 .pills{justify-content:center}
 .split-copy a{align-self:center !important}
@@ -239,7 +238,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 
 <main>
 <section class="hero">
-<img class="ph ph-day" src="assets/hero-day-l.webp" alt="Girl leaning out of a black car window by day, wearing the Techno Girls Are Better Than Others tee" style="object-position:55% 42%" fetchpriority="high">
+<video class="ph ph-day" id="heroVid" poster="assets/hero-d-poster.jpg" data-d="assets/hero-d.mp4" data-m="assets/hero-m.mp4" data-pd="assets/hero-d-poster.jpg" data-pm="assets/hero-m-poster.jpg" autoplay muted loop playsinline preload="auto" aria-label="Models dancing under projections of the Techno Girls Are Better Than Others slogan"></video>
 <img class="ph ph-night" src="assets/hero-night.webp" alt="In the dark: the Techno Girls Are Better Than Others print glows aqua green" style="object-position:50% 45%">
 <div class="scrim"></div>
 <div class="hero-copy">
@@ -254,7 +253,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 
 <section id="preorder" class="pdp">
 <div class="gal">
-<figure><img src="assets/girl-top.webp" alt="Black and white overhead shot of a girl in the Techno Girls Are Better Than Others tee" style="object-position:50% 62%" loading="lazy"></figure>
+<figure><img src="assets/girl-top.webp" alt="Black and white overhead shot of a girl in the Techno Girls Are Better Than Others tee" loading="lazy"></figure>
 <figure><img src="assets/men-graffiti.webp" alt="Guy covering his eyes in front of a graffiti wall, the print glowing green" loading="lazy"></figure>
 <figure style="background:#000"><img src="assets/print-night.webp" alt="Close-up of the print glowing in the dark" loading="lazy"></figure>
 <figure><img src="assets/print-day.webp" alt="Close-up of the print in daylight" loading="lazy"></figure>
@@ -314,7 +313,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 
 <section class="tiles" aria-label="Explore">
 <a class="tile" href="#lookbook"><img src="assets/band-duo.webp" alt="" style="object-position:50% 30%" loading="lazy"><span class="scrim"></span><span class="label">Lookbook</span></a>
-<a class="tile" href="#lookbook"><video src="assets/reel-loop.mp4" poster="assets/reel-poster.jpg" autoplay muted loop playsinline preload="none" aria-hidden="true"></video><span class="scrim"></span><span class="label">The reel</span></a>
+<a class="tile" href="#lookbook"><video src="assets/reel-giada.mp4" poster="assets/reel-giada-poster.jpg" autoplay muted loop playsinline preload="none" aria-hidden="true"></video><span class="scrim"></span><span class="label">The reel</span></a>
 <a class="tile" href="#universe"><img src="assets/gr-chrome-blue.webp" alt="" loading="lazy"><span class="scrim"></span><span class="label">Universe</span></a>
 <a class="tile" href="#universe"><img src="assets/lb-11.webp" alt="" style="object-position:50% 40%" loading="lazy"><span class="scrim"></span><span class="label">Instagram</span></a>
 </section>
@@ -328,7 +327,7 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 <img src="assets/men-bw.webp" alt="Black and white shot of a guy in sunglasses and the Techno Girls Are Better Than Others tee" style="object-position:50% 15%" loading="lazy">
 <img src="assets/men-street.webp" alt="Two guys in the Techno Girls Are Better Than Others tee under a green pedestrian light" style="object-position:50% 82%" loading="lazy">
 <img src="assets/lb-02.webp" alt="The tee in the dark: the print glows" style="object-position:50% 40%" loading="lazy">
-<img src="assets/lb-01.webp" alt="Two models with the slogan projected on them, green and orange background" style="object-position:50% 35%" loading="lazy">
+<img src="assets/girls-trio.webp" alt="Three friends in Techno Girls Are Better Than Others tops, smiling in the sun" style="object-position:50% 68%" loading="lazy">
 <img src="assets/hero-day.webp" alt="Black and white shot of a girl in the sun wearing the tee" style="object-position:50% 62%" loading="lazy">
 <img src="assets/lb-05.webp" alt="Two models in front of lasers, the prints glowing" style="object-position:50% 55%" loading="lazy">
 </div>
@@ -490,6 +489,15 @@ var CONFIG = {
     if (hasTracking) consentBox.hidden = false;
   });
 
+  /* ---- Video apertura: versione desktop o mobile ---- */
+  var hv = document.getElementById('heroVid');
+  if (hv) {
+    var mob = window.matchMedia('(max-width: 760px)').matches;
+    hv.poster = mob ? hv.dataset.pm : hv.dataset.pd;
+    hv.src = mob ? hv.dataset.m : hv.dataset.d;
+    var pr = hv.play(); if (pr && pr.catch) pr.catch(function () {});
+  }
+
   /* ---- Luce on/off ---- */
   var toggles = document.querySelectorAll('[data-toggle]');
   function setNight(on) {
@@ -498,6 +506,7 @@ var CONFIG = {
     var l = document.querySelector('[data-light-label]'); if (l) l.textContent = on ? 'Lights off' : 'Lights on';
     var h = document.querySelector('[data-hero-label]'); if (h) h.textContent = on ? 'Lights back on' : 'Kill the lights';
     document.querySelector('meta[name="theme-color"]').setAttribute('content', on ? '#050505' : '#FFFFFF');
+    if (hv) { if (on) hv.pause(); else { var p2 = hv.play(); if (p2 && p2.catch) p2.catch(function () {}); } }
   }
   toggles.forEach(function (b) { b.addEventListener('click', function () { var on = !root.classList.contains('night'); setNight(on); track('light_toggle', { mode: on ? 'buio' : 'luce' }, 'LightToggle', { night: on }, true); }); });
 
